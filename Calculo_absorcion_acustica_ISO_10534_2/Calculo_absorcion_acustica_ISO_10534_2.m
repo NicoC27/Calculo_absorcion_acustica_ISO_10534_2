@@ -1,5 +1,5 @@
 % INSTRUCCIONES DE USO
-% #1 oprima el boton de Run ubicado en la parte superior, se le desplegara un mensaje en la ventana de comandos 
+% #1 Oprima el boton de Run ubicado en la parte superior, se le desplegara un mensaje en la ventana de comandos 
 % #2 Ingrese la metodologia, eliga entre la opcion 1) ISO o 2) DOC
 % #3 Ingrese el tipo de calibracion, eliga entre la opcion 1) 3 muestras o 2) 8 muestras
 % #4 Ingresar el material a caracterizar, escoja entre los 5 tipos de materiales disponibles 
@@ -16,16 +16,16 @@
 % 7. Salir (si selecciona esta opcion, se cerrara el programa)
 
 % OBSERVACIONES A TENER EN CUENTA
-% - en las opciones a escoger (#1, #2, #3, #4 y #5), ingrese solamente el numero de la opcion que 
+% - En las opciones a escoger (#1, #2, #3, #4 y #5), ingrese solamente el numero de la opcion que 
 % desea seleccionar, si ingresa otro caracter como por ejemplo una letra o un simbolo o simplemente
 % le da enter sin ingresar un numero, el programa le puede generar un error o puede detener el programa
-% - cada vez que escoja la opcion 5º (comparar / cargar audio), seleccione la misma metodologia y
+% - Cada vez que escoja la opcion 5º (comparar / cargar audio), seleccione la misma metodologia y
 % el tipo de calibracion que escogio antes, si escoge una metodologia distinta, el programa cargara
 % los audios pero tendra una resolucion distinta en la comparativa
-% - antes de seleccionar la opcion 5º, digite la opcion 3º o 4º de acuerdo a la grafica que desea
+% - Antes de seleccionar la opcion 5º, digite la opcion 3º o 4º de acuerdo a la grafica que desea
 % comparar, despues de que se le despliegue la grafica, puede seleccionar la opcion 5º y asi, cuando 
 % se cargue un nuevo audio, podra ver la seleccion anterior y la nueva seleccion en una sola grafica
-% - si selecciona la opcion 6º, debera volver a presionar la opcion 5º para regresar al menu principal
+% - Si selecciona la opcion 6º, debera volver a presionar la opcion 5º para regresar al menu principal
 
 %_____________________________________________________________________________________________________
 
@@ -52,6 +52,10 @@ while opt ~= 7
     [typemat, mat, MIC_1, MIC_2, MIC_3, RR_MUESTRA, MIC_CAL1I, MIC_CAL2I, MIC_CAL3I, RR_CAL_I, MIC_ISO_CAL1II, MIC_ISO_CAL3II, RR_ISO_CAL_II, MIC_DOC_CAL2II, MIC_DOC_CAL3II, RR_DOC_CAL_II] = CARGAR_AUDIO(typemat,typecal);
     [FREC_FT_SMAART,MAG_FT_SMAART, H12, freq, H12I, H12II] = FT(metod, fs, nfft, MIC_1, MIC_2, MIC_3, RR_MUESTRA, MIC_CAL1I, MIC_CAL2I, MIC_CAL3I, RR_CAL_I, MIC_ISO_CAL1II, MIC_ISO_CAL3II, RR_ISO_CAL_II, MIC_DOC_CAL2II, MIC_DOC_CAL3II, RR_DOC_CAL_II);
     [freqMin, freqMax, alpha, r] = COEF_ABS(H12I, H12II, H12, d, freq, c, S_ISO, S_DOC, x1_ISO, x1_DOC, metod);
+    
+    alpha = max(0, min(alpha, 1));
+    r = max(0, min(r, 1));
+    
     GRAFICAR(typemat, mat, metod, freqMin, freqMax, opt, fs, freq, FREC_FT_SMAART, MAG_FT_SMAART, MIC_3, H12, alpha, r);
     
     if opt == 5
@@ -226,8 +230,9 @@ end
 
 function GRAFICAR(typemat, mat, metod, freqMin, freqMax, opt, fs, freq, FREC_FT_SMAART, MAG_FT_SMAART, MIC_3, H12, alpha, r)
     
-    tamT = 40;
+    tamT = 20;
     tamE = 10;
+    tamL = 15;
     N = 2^14;
     
     if metod == 1
@@ -352,7 +357,7 @@ function GRAFICAR(typemat, mat, metod, freqMin, freqMax, opt, fs, freq, FREC_FT_
         xlabel('Frecuencia (Hz)', 'FontName', 'Times New Roman');
         ylabel('Magnitud', 'FontName', 'Times New Roman');
         title('Coeficiente de reflexion (r)', 'FontName', 'Times New Roman');
-        legend([etiquetas_actuales, etiquetas], 'Location', 'best', 'FontName', 'Times New Roman');
+        legend([etiquetas_actuales, etiquetas], 'Location', 'best', 'FontSize', tamL, 'FontName', 'Times New Roman');
         xlim([fl fu])
         ylim([0,1])
         t.FontSize = tamT;
@@ -377,7 +382,7 @@ function GRAFICAR(typemat, mat, metod, freqMin, freqMax, opt, fs, freq, FREC_FT_
         xlabel('Frecuencia (Hz)', 'FontName', 'Times New Roman');
         ylabel('Magnitud', 'FontName', 'Times New Roman');
         title(['Coeficiente de absorcion (' char(945),')'], 'FontName', 'Times New Roman');
-        legend([etiquetas_actuales, etiquetas], 'Location', 'best', 'FontName', 'Times New Roman');
+        legend([etiquetas_actuales, etiquetas], 'Location', 'best', 'FontSize', tamL, 'FontName', 'Times New Roman');
         xlim([fl fu])
         ylim([0,1])
         t.FontSize = tamT;
@@ -389,6 +394,9 @@ function GRAFICAR(typemat, mat, metod, freqMin, freqMax, opt, fs, freq, FREC_FT_
         xticks(xticks_values);
         xticklabels(xticklabels_values);
         grid on
+        x_line = 50;
+        y_limits = ylim;
+        plot([x_line x_line], y_limits, 'r--', 'HandleVisibility', 'off');
         hold off
         close ([figure(1) figure(2) figure(3) figure(4)])
     end
